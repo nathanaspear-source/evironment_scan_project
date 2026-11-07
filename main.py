@@ -234,6 +234,9 @@ history = cnn.fit(
     validation_data=val_ds,
     callbacks=[early_stop, reduce_lr])
 
+# Saving model so it can be used later
+cnn.save("cnn.keras")
+
 # Evaluating CNN model on test set
 test_loss, test_acc = cnn.evaluate(test_ds, verbose=1)
 print(f"Test accuracy: {test_acc:.2f}")
