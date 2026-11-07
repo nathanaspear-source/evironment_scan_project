@@ -1,4 +1,5 @@
 {
-    "plastic": 1,
-    "paper": 1
+    "plastic": 2,
+    "cardboard": 1,
+    "metal": 2
 }

@@ -1,4 +1,3 @@
-
 from collections import Counter
 import streamlit as st
 import json
@@ -8,7 +7,10 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 from tensorflow.keras.preprocessing.image import img_to_array
 from pathlib import Path
+from google import genai
+from dotenv import load_dotenv
 
+load_dotenv()
 
 st.title("Environment Scan")
 
@@ -25,6 +27,26 @@ if "item_tracker" not in st.session_state:
     else:
         st.session_state.item_tracker = Counter()
 
+def gemini_summary(material):
+    """Generates a summary relating to recycling of the pictured item."""
+
+    AI_CONTEXT = ("Based on the inputted material, provide a 2-3 sentence summary or fun fact about "
+                  "recycling this material.")
+
+    client = genai.Client()
+
+    response = client.interactions.create(
+        input=material,
+        model="gemini-2.5-flash",
+        extra_body={
+            "system_instruction":AI_CONTEXT
+        },
+        stream=False,
+        api_version="v1beta",
+    )
+
+    text = response.output_text
+    return text
 
 # Save inventory
 def save_files():
@@ -119,6 +141,11 @@ if image_file is not None:
                 st.subheader(f"Prediction: {pred_class}")
                 st.subheader(f"Confidence: {confidence:.2%}")
 
+                if pred_class.strip().lower() != "trash":
+                    google_response = gemini_summary(pred_class)
+                    st.subheader("Material Information")
+                    st.write(google_response)
+
                 # Update inventory
                 st.session_state.item_tracker[pred_class] += 1
 
@@ -167,7 +194,6 @@ if st.session_state.item_tracker:
 
 else:
     st.info("No materials recorded yet. Take a picture to get started!")
-
 
 # Reset inventory
 if st.button("Reset Inventory"):
