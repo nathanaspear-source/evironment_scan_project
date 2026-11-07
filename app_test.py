@@ -29,15 +29,13 @@ if uploaded_file is not None:
 
     if st.button("Predict"):
         with st.spinner("Loading..."):
-            target_size = (224, 224)
-            resized_image = image.resize(target_size)
+            try:
+                # Converting all non-RGB images to RGB channels for CNN model
+                if image.mode != 'RGB':
+                    image = image.convert('RGB')
 
-            img_array = img_to_array(target_size)
-            img_array = img_array / 255
+                # Resizing image to inputted shape
+                resized_image = image.resize((224, 224), Image.Resampling.LANCZOS)
 
-            img_array = np.expand_dims(img_array, axis=0)
-
-            prediction = model.predict(img_array)
-
-            st.subheader("Raw Prediction:")
-            st.write(prediction)
+            except Exception as e:
+                print(f'Failed to process image {image}: {e}')
