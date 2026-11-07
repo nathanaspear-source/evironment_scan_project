@@ -304,9 +304,6 @@ plt.ylabel("True Label")
 # Saving confusion matrix to storage
 plt.savefig("Validation Confusion Matrix")
 
-
-
-
 # Predicting labels on test set
 y_test_pred = en_model.predict(test_ds, verbose=1)
 y_test_pred = np.argmax(y_test_pred, axis=1)
