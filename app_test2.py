@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 import html
 import io
 import os
@@ -355,7 +355,7 @@ with tab_scan:
                 """,
                 unsafe_allow_html=True,
             )
-=======
+            
 import streamlit as st
 import json
 import pandas as pd
@@ -479,4 +479,4 @@ if report_file.exists():
 else:
     st.warning("Classification report CSV was not found.")
  
->>>>>>> b5c672ad319693b8daf4b046fb34e073e4d23b1e
+
