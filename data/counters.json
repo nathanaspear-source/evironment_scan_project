@@ -1,0 +1,19 @@
+{
+  "total": 1,
+  "by_category": {
+    "Plastic": 1,
+    "Paper": 0,
+    "Metal": 0,
+    "Glass": 0,
+    "Organic": 0,
+    "Other": 0
+  },
+  "by_action": {
+    "Recycle": 1,
+    "Compost": 0,
+    "Throw Away": 0
+  },
+  "by_item": {
+    "Plastic Bottle": 1
+  }
+}
