@@ -7,6 +7,7 @@ import tensorflow as tf
 from tensorflow.keras import layers, models, callbacks, regularizers
 import numpy as np
 import hashlib
+from tensorflow.keras.applications import EfficientNetB0
 
 def resize_images(input_dir, output_dir):
     """Resizes all images in input_dir and saves them to output_dir at
@@ -179,64 +180,121 @@ train_ds = create_dataset(X_train, y_train, shuffle=True)
 val_ds = create_dataset(X_val, y_val, shuffle=False)
 test_ds = create_dataset(X_test, y_test, shuffle=False)
 
+early_stop = callbacks.EarlyStopping(monitor='val_loss', patience=7, restore_best_weights=True)
+reduce_lr = callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.3, patience=3, min_lr=1e-6)
+regularizer = regularizers.l2(0.0005)
+
 print(f"Class Names: {classes}")
 
 # Data augmentation
 data_augmentation = tf.keras.Sequential([
     layers.RandomFlip("horizontal"),
-    layers.RandomFlip("vertical"),
+    layers.RandomRotation(0.15),
     layers.RandomZoom(0.2),
+    layers.RandomContrast(0.1),
 ])
 
 num_classes = len(classes)
-weight_decay = 1e-3
 
-early_stop = callbacks.EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
-reduce_lr = callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.3, patience = 10)
+base = EfficientNetB0(
+    include_top=False,
+    weights='imagenet',
+    input_shape=(224, 224, 3)
+)
 
-# Defining CNN model architecture
-cnn = models.Sequential([
-    layers.Input(shape=(224, 224, 3)),
+base.trainable = False
 
-    layers.Rescaling(1./255, input_shape=(224, 224, 3)),
-    data_augmentation,
+inputs = layers.Input(shape=(224, 224, 3))
+x = base(inputs, training=False)
+x = layers.GlobalAveragePooling2D()(x)
+x = layers.Dropout(0.2)(x)
+outputs = layers.Dense(len(classes), activation='softmax')(x)
 
-    # Block 1
-    layers.Conv2D(32, 3, activation='relu', input_shape=(224, 224, 3)),
-    layers.BatchNormalization(),
-    layers.Conv2D(32, 3, padding='same', activation='relu'),
-    layers.BatchNormalization(),
-    layers.MaxPooling2D(pool_size=(2, 2)),
-    layers.Dropout(0.25),
+en_model = models.Model(inputs=inputs, outputs=outputs)
+en_model.summary()
 
-    # Block 2
-    layers.Conv2D(64, 3, padding='same', activation='relu'),
-    layers.BatchNormalization(),
-    layers.Conv2D(64, 3, padding='same', activation='relu'),
-    layers.BatchNormalization(),
-    layers.MaxPooling2D(),
-    layers.Dropout(0.3),
+en_model.compile(
+    optimizer='adam',
+    loss='sparse_categorical_crossentropy',
+    metrics=['accuracy']
+)
 
-    # Classifier
-    layers.Flatten(),
-    layers.Dense(512, activation='relu'),
-    layers.BatchNormalization(),
-    layers.Dropout(0.5),
-    layers.Dense(num_classes, activation='softmax')
-])
-
-cnn.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
-
-# Training CNN model
-history = cnn.fit(
+history = en_model.fit(
     train_ds,
-    epochs = 50,
     validation_data=val_ds,
-    callbacks=[early_stop, reduce_lr])
+    epochs=50,
+    callbacks=[early_stop, reduce_lr],
+)
 
-# Saving model so it can be used later
-cnn.save("cnn.keras")
+en_model.save("efficient_net.keras")
 
-# Evaluating CNN model on test set
-test_loss, test_acc = cnn.evaluate(test_ds, verbose=1)
-print(f"Test accuracy: {test_acc:.2f}")
+test_loss, test_acc = en_model.evaluate(test_ds)
+print(f"Test Loss: {test_loss}, Test Accuracy: {test_acc}")
+
+# early_stop = callbacks.EarlyStopping(monitor='val_loss', patience=7, restore_best_weights=True)
+# reduce_lr = callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.3, patience=3, min_lr=1e-6)
+# regularizer = regularizers.l2(0.0005)
+#
+# # Defining CNN model architecture
+# cnn = models.Sequential([
+#     layers.Input(shape=(224, 224, 3)),
+#
+#     layers.Rescaling(1./255, input_shape=(224, 224, 3)),
+#     data_augmentation,
+#
+#     # Block 1
+#     layers.Conv2D(32, 3, activation='relu', input_shape=(224, 224, 3), kernel_regularizer=regularizer),
+#     layers.BatchNormalization(),
+#     layers.Conv2D(32, 3, padding='same', activation='relu', kernel_regularizer=regularizer),
+#     layers.BatchNormalization(),
+#     layers.MaxPooling2D(pool_size=(2, 2)),
+#     layers.Dropout(0.15),
+#
+#     # Block 2
+#     layers.Conv2D(64, 3, padding='same', activation='relu', kernel_regularizer=regularizer),
+#     layers.BatchNormalization(),
+#     layers.Conv2D(64, 3, padding='same', activation='relu', kernel_regularizer=regularizer),
+#     layers.BatchNormalization(),
+#     layers.MaxPooling2D(),
+#     layers.Dropout(0.2),
+#
+#     # Block 3
+#     layers.Conv2D(128, 3, padding='same', activation='relu', kernel_regularizer=regularizer),
+#     layers.BatchNormalization(),
+#     layers.Conv2D(128, 3, padding='same', activation='relu', kernel_regularizer=regularizer),
+#     layers.BatchNormalization(),
+#     layers.MaxPooling2D(),
+#     layers.Dropout(0.25),
+#
+#     # Block 4
+#     layers.Conv2D(256, 3, padding='same', activation='relu', kernel_regularizer=regularizer),
+#     layers.BatchNormalization(),
+#     layers.Conv2D(256, 3, padding='same', activation='relu', kernel_regularizer=regularizer),
+#     layers.BatchNormalization(),
+#     layers.MaxPooling2D(),
+#     layers.Dropout(0.3),
+#
+#     layers.GlobalAveragePooling2D(),
+#
+#     # Classifier
+#     layers.Dense(128, activation='relu'),
+#     layers.BatchNormalization(),
+#     layers.Dropout(0.4),
+#     layers.Dense(num_classes, activation='softmax')
+# ])
+#
+# cnn.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+#
+# # Training CNN model
+# history = cnn.fit(
+#     train_ds,
+#     epochs = 50,
+#     validation_data=val_ds,
+#     callbacks=[early_stop, reduce_lr])
+#
+# # Saving model so it can be used later
+# cnn.save("cnn.keras")
+#
+# # Evaluating CNN model on test set
+# test_loss, test_acc = cnn.evaluate(test_ds, verbose=1)
+# print(f"Test accuracy: {test_acc:.2f}")
