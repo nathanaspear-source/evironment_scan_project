@@ -29,11 +29,13 @@ if uploaded_file is not None:
 
     if st.button("Predict"):
         with st.spinner("Loading..."):
+            image = image.convert("RGB")
+
             target_size = (224, 224)
             resized_image = image.resize(target_size)
 
-            img_array = img_to_array(target_size)
-            img_array = img_array / 255
+            img_array = img_to_array(resized_image)
+            img_array = img_array / 255.0
 
             img_array = np.expand_dims(img_array, axis=0)
 
