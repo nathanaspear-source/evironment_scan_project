@@ -41,7 +41,35 @@ st.markdown("""
     border-radius: 12px;
     border: 1px solid #315342;
 }
-h1, h2, h3 { color: #e7f5eb; }
+h1, h2, h3 { color: #e7f5eb !important; }
+
+/* Big counter numbers: bright green */
+[data-testid="stMetricValue"],
+[data-testid="stMetricValue"] * {
+    color: #4ade80 !important;
+    font-weight: 800 !important;
+    font-size: 2.4rem !important;
+}
+/* Counter labels (Total, Metal, ...): bright white */
+[data-testid="stMetricLabel"],
+[data-testid="stMetricLabel"] * {
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    font-size: 1.05rem !important;
+}
+/* "+2 today" deltas */
+[data-testid="stMetricDelta"],
+[data-testid="stMetricDelta"] * {
+    color: #fde047 !important;
+}
+/* Regular text, captions, labels */
+.stApp p, .stApp li, .stApp label, .stApp span,
+[data-testid="stCaptionContainer"], [data-testid="stCaptionContainer"] * {
+    color: #f1f5f2;
+}
+[data-testid="stCaptionContainer"] { opacity: 1 !important; }
+/* Tab titles */
+button[data-baseweb="tab"] p { color: #ffffff !important; font-size: 1.1rem !important; }
 </style>
 """, unsafe_allow_html=True)
 
