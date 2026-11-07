@@ -9,16 +9,16 @@ from tensorflow.keras.preprocessing.image import img_to_array
 
 st.title("Image Uploader")
 
-@st.cache.resource
+@st.cache_resource
 def load_my_model():
-    model = load_model(efficient_net.keras)
+    model = tf.keras.models.load_model('efficient_net.keras')
     return model
 
 try:
     model = load_my_model()
-    st.sidebar("Sucessfully loaded the CV model")
+    st.sidebar.success("Sucessfully loaded the CV model")
 except Exception as e:
-    st.sidebar.error("Error: could not load the model {e}")
+    st.sidebar.error(f"Error: could not load the model {e}")
 
 
 uploaded_file = st.file_uploader("Choose an Image...", type=["png", "jpg", "jpeg"])
