@@ -293,7 +293,7 @@ y_val_pred = np.argmax(y_val_pred, axis=1)
 print("Validation Classification Report")
 print(classification_report(y_val, y_val_pred, target_names = classes))
 
-# Creating confusion matrix
+# Creating validation confusion matrix
 cm_val = confusion_matrix(y_val, y_val_pred)
 plt.figure(figsize=(12, 5))
 sns.heatmap(cm_val, annot=True, fmt='d', cmap='Blues')
@@ -304,6 +304,27 @@ plt.ylabel("True Label")
 # Saving confusion matrix to storage
 plt.savefig("Validation Confusion Matrix")
 
+
+
+
+# Predicting labels on test set
+y_test_pred = en_model.predict(test_ds, verbose=1)
+y_test_pred = np.argmax(y_test_pred, axis=1)
+
+# Printing en_model classification report on validation set
+print("Test Classification Report")
+print(classification_report(y_test, y_test_pred, target_names = classes))
+
+# Creating validation confusion matrix
+cm_test = confusion_matrix(y_test, y_test_pred)
+plt.figure(figsize=(12, 5))
+sns.heatmap(cm_val, annot=True, fmt='d', cmap='Blues')
+plt.title("Test Confusion Matrix")
+plt.xlabel("Predicted Label")
+plt.ylabel("True Label")
+
+# Saving confusion matrix to storage
+plt.savefig("Test Confusion Matrix")
 
 
 
