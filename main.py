@@ -286,7 +286,8 @@ plt.tight_layout()
 plt.savefig("EfficientNet0 Accuracy and Validation Loss Plots")
 
 # Predicting labels on validation set
-y_val_pred = en_model.predict(X_val, verbose=1).argmax(axis=1)
+y_val_pred = en_model.predict(val_ds, verbose=1)
+y_val_pred = np.argmax(y_val_pred, axis=1)
 
 # Printing en_model classification report on validation set
 print("Validation Classification Report")
