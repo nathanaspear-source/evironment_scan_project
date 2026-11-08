@@ -2,11 +2,11 @@
 
 ## Project Description
 
-Environment Scan is a computer vision application developed to identify and track waste materials using machine learning. Built with Streamlit, the application allows users to upload images or capture photographs directly through their camera. A trained TensorFlow/Keras computer vision model processes the image and predicts its corresponding material category.
+Environment Scan is a computer vision application developed to identify and track waste materials using computer vision. Built with Streamlit, the application allows users to upload images or capture photographs directly through their camera. A trained TensorFlow/Keras computer vision model processes the image and predicts its corresponding material category.
 
 Following each prediction, the application automatically updates an inventory of identified materials. It also displays prediction confidence scores, individual material counts, and a pie chart illustrating the distribution of recorded waste categories.
 
-The goal of this project is to explore how computer vision and machine learning can be applied to waste identification and material tracking.
+The goal of this project is to explore how computer vision can be applied to waste identification and material tracking.
 
 ## Table of Contents
 
@@ -32,6 +32,68 @@ The goal of this project is to explore how computer vision and machine learning 
 - Inventory reset functionality.
 
 ## Computer Vision Explanation
+Environment Scan Project utilizes a transfer learning convolutional neural network (CNN)
+model to classify objects in images as trash or recyclable objects. More specifically, there
+are six classes the model can classify objects as: cardboard, glass, metal, paper, plastic,
+and trash. Evironment Scan Project uses a complete computer vision model pipeline to clean the TrashNet
+dataset of images, split the dataset into train, validation, and test sets, train the model, and evaluate the model.
+
+### Cleaning
+First, the "resize_images" function navigates through all of the subdirectories for each class
+and resizes every image to 224x224 pixels. This size makes the matrix operations that occur in the convolution layer of 
+the CNN simpler. The "remove_duplicates" function then uses SHA1-Hash codes to identify and remove identical 
+images from the dataset. This helps prevent overfitting. Next, a pair of nested for loops are used to navigate 
+through all the sub-directories in the TrashNet dataset and append the filepaths of the images and their labels to two 
+lists, which are then converted to NumpY arrays. These arrays are used for splitting the dataset into training, 
+validation, and test sets later. Next, the "counts" dictionary is used to store the number of images in each class 
+directory for dataset feature distribution analysis.
+
+### Dataset Splitting
+"train_test_split" from scikit-learn is used to split the dataset into 80% training, 10% validation, and 10% test sets.
+The training set is used for the model to learn on during training. The validation set is used to evaluate model performance,
+and tune hyperparameters as needed. The test set serves as the final evaluation of unseen data for the model. Stratification
+is used to preserve the class distrubution across the train, validation, and test sets. This prevents any of these sets from
+having a disproportionate amount of a particular class. The six classes are then encoded as integers (0-5) so they can be predicted
+by the model. The training, validation, and test sets are converted into TensorFlow datasets so they can be used with the TensorFlow
+based model.
+
+### Data Augmentation
+Data augmentation is used in CNNs to improve their ability to generalize on unseen data by replicating the realistic visual 
+diversity of objects and their positioning in images. In this model pipeline, random images from the training set are horizontally 
+flipped, rotated, zoomed in, and have their contrast increased.
+
+### EfficientNet-B0 and Transfer Learning
+EfficientNet-B0 is a pre-trained CNN model that has been trained on a large dataset of images. Using EfficientNet-B0 in this
+project allowed us to use the feature extraction capabilities of a well trained, powerful model and tailor it to our needs by freezing the feature
+extractor so its weights remain constant during training. We trained the classifer on TrashNet so it learns how to detect the classes
+in this dataset. Put simply, we are getting the feature extraction capabilities of a powerful, pre-trained model and tailoring it's classifier for our
+needs. This processor of using a pre-trained model designed for one task, and modifying it to work on another, related task is called
+transfer learning.
+
+### Model Evaluation
+![Convergence Plots](docs_images/train_convergence.png)
+
+To evaluate our model, we plotted training and validation loss and accuracy over epochs to see the model's convergence, plotted the
+validation and test confusion matrices, and printed the validation and test classification reports. The model convergence plots indicate
+that the model is learning effectively, but overfits in later epochs. The training accuracy and loss smoothly converge to 1.0 and 0.0 
+respectively. The validation loss converges to 0.4 and the validation accuracy converges to roughly 0.86. The more jagged validation accuracy curve
+is likely due to the small validation and test set sample size, as TrashNet is a smaller dataset. Classifying even a few observations wrong can substantially
+impact its score, leading to a more jagged line.
+
+![Validation Confusion Matrix](docs_images/val_confusion_matrix.png)
+![Test Confusion Matrix](docs_images/test_confusion_matrix.png)
+
+Both the validation and test confusion matrices indicate that despite experiencing overfitting, the model was able to correctly identify the vast majority
+of unseen samples.
+
+
+![Test Classification Report](docs_images/test_class_report.png)
+
+The test classification report indicates strong classification performance on the first five classes (cardboard, glass, metal, paper, and plastic), but weaker
+performance on the trash class. This may be because there were far less trash samples in the TrashNet dataset for the model to learn on compared to the other classes, or
+the dataset's samples are more visually diverse compared to the other classes. F1-Scores of 0.85-0.94 on the non-trash classes is very good to excellent performance, but 
+the 0.72 F1-Score on the trash class is poor to moderate.
+
 
 
 ## Application and Inventory Tracking
@@ -152,3 +214,13 @@ Streamlit will launch the application and provide a local URL that can be opened
 Developed collaboratively as a hackathon project focused on applying computer vision and machine learning to waste identification and tracking.
 
 Add contributor names and their respective contributions here.
+
+### Nathan Spear
+- Developed computer vision pipeline
+- Compared custom CNN and EfficientNet-B0 transfer learning model performance
+- Used evaluation metrics to report transfer learning model's performance
+- Helped organize GitHub repository
+- Implemented Gemini fun recycling fact feature
+
+## References
+Ozkefe, Feyza. (n.d.). *TrashNet*. Kaggle. https://www.kaggle.com/datasets/feyzazkefe/trashnet
