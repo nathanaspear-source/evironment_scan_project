@@ -110,13 +110,7 @@ The dashboard displays the individual material counts, total number of recorded 
 
 ## Data Storage
 
-The application uses JSON to store inventory data locally in a file named `inventory.json`.
-
-Python's `json` module is used to serialize the inventory dictionary and save it to the file. When the application starts, it checks whether an existing inventory file is available and loads its contents.
-
-This allows previously recorded material counts to persist between application sessions without requiring users to manually re-enter their data.
-
-The current implementation uses local file storage rather than a database.
+The counters for every material are stored in a dictionary within the application, using ts.session_state to allow the counters and trackers to persist across applications. 
 
 ## UI Framework
 
@@ -221,6 +215,14 @@ Add contributor names and their respective contributions here.
 - Used evaluation metrics to report transfer learning model's performance
 - Helped organize GitHub repository
 - Implemented Gemini fun recycling fact feature
+
+### Andre Vaughn
+- Developed the Streamlit UI using Python, including image uploads, camera scanning, classification results, disposal recommendations, and QR code integration.
+- Worked on inventory tracking, the Summary dashboard, and created a pie chart to display scanned waste categories.
+- Managed code through GitHub, updated project requirements, tested the application, fixed issues, and helped prepare the presentation.
+
+## Juliana Pinto 
+
 
 ## References
 Ozkefe, Feyza. (n.d.). *TrashNet*. Kaggle. https://www.kaggle.com/datasets/feyzazkefe/trashnet
