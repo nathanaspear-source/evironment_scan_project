@@ -32,7 +32,7 @@ The goal of this project is to explore how computer vision can be applied to was
 - Inventory reset functionality.
 
 ## Computer Vision Explanation
-Environment Scan Project utilizes a transfer learning convolutional neural network (CNN)
+Environment Scan utilizes a transfer learning convolutional neural network (CNN)
 model to classify objects in images as trash or recyclable objects. More specifically, there
 are six classes the model can classify objects as: cardboard, glass, metal, paper, plastic,
 and trash. Evironment Scan Project uses a complete computer vision model pipeline to clean the TrashNet
