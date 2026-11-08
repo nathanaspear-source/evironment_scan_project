@@ -15,6 +15,10 @@ except ImportError:  # app still runs; QR section shows install hint
 import streamlit as st
 import tensorflow as tf
 from PIL import Image
+from google import genai
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # ──────────────────────────────────────────────────────────────
 # Page setup
@@ -101,6 +105,28 @@ def icon_for(material: str) -> str:
         if name in key:
             return emoji
     return "♻️"
+
+def gemini_summary(material):
+    """Generates a summary relating to recycling of the pictured item."""
+
+    AI_CONTEXT = ("Based on the inputted material, provide a 2-3 sentence summary or fun fact about "
+                  "recycling this material.")
+
+    client = genai.Client()
+
+    response = client.interactions.create(
+        input=material,
+        model="gemini-2.5-flash",
+        extra_body={
+            "system_instruction":AI_CONTEXT
+        },
+        stream=False,
+        api_version="v1beta",
+    )
+
+    text = response.output_text
+    return text
+
 
 
 # ──────────────────────────────────────────────────────────────
@@ -327,7 +353,7 @@ with tab_scan:
                 f"<span>{p:.1%}</span></div>"
                 for n, p in pred["runners"]
             )
-            desc, tip = info_for(pred["class"])
+            desc, tip = pred["class"].capitalize(), gemini_summary(pred["class"])
             tip_html = (
                 f"<div style='margin-top:1rem;padding:.8rem 1rem;background:#EEF6F0;"
                 f"border-radius:12px;color:#1F5E43;font-size:.93rem;'>"
