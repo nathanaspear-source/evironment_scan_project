@@ -4,6 +4,9 @@ pillow
 numpy
 pandas
 scikit-learn>=1.9.1 
-seaborn 
+seaborn
+tensorflow
+google-genai
+python-dotenv
 
 

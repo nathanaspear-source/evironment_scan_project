@@ -1,5 +1,5 @@
 # Use an official lightweight Python image
-FROM python:3.13-slim
+FROM python:3.14-slim
 
 # Set system environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -16,8 +16,6 @@ ENV STREAMLIT_SERVER_HEADLESS=true \
 WORKDIR /app
 
 RUN mkdir /app/saved_articles
-
-ENV SAVE_ARTICLES_PATH=/app/saved_articles
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
